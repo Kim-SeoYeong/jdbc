@@ -28,7 +28,7 @@ public class AuthorDelete {
 			and author_name = '김서영';
 		     */
 			String query = "";
-			query += " delete author ";
+			query += " delete from author ";
 			query += " where author_id = ? ";
 			query += " and author_name = ? ";
 			
