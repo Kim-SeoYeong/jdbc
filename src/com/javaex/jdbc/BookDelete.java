@@ -27,7 +27,7 @@ public class BookDelete {
 			and book_id = 10;
 			*/
 			String query = "";
-			query += " delete book ";
+			query += " delete from book ";
 			query += " where pubs = ? ";
 			query += " and book_id = ? ";
 			
