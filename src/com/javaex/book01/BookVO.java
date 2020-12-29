@@ -80,8 +80,6 @@ public class BookVO extends AuthorVO{
 	public void setAuthorId(int authorId) {
 		this.authorId = authorId;
 	}
-	
-	
 
 	//메소드-일반
 	@Override

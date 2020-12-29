@@ -19,6 +19,104 @@ public class BookDao {
 	//메소드-g/s
 	//메소드-일반
 	
+	//검색하기
+	public List<BookVO> BookSearch(String str) {
+		List<BookVO> bookList = new ArrayList<BookVO>();
+		// 0. import java.sql.*;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			// 1. JDBC 드라이버 (Oracle) 로딩                      
+			Class.forName(driver);                           
+			                                                 
+			// 2. Connection 얻어오기                            
+			conn = DriverManager.getConnection(url, id, pw); 
+			
+		    // 3. SQL문 준비 / 바인딩 / 실행
+			/*
+			select  book.book_id,
+			        book.title,
+			        book.pubs,
+			        book.pub_date,
+			        book.author_id,
+			        author.author_name,
+			        author.author_desc
+			from author, book
+			where author.author_id = book.author_id
+			and (book.title like '%문%'
+			or book.pubs like '%문%'
+			or author.author_name like '%문%');
+			*/
+			
+			String query = "";
+			query += " select  book.book_id,  ";
+			query += "         book.title,    ";
+			query += "         book.pubs,     ";
+			query += "         to_char(book.pub_date, 'YYYY-MM-DD') pub_date, ";
+			query += "         book.author_id, ";
+			query += "         author.author_name, ";
+			query += "         author.author_desc ";
+			query += " from author, book ";
+			query += " where author.author_id = book.author_id ";
+			query += " and (book.title like ? ";
+			query += " or book.pubs like ? ";
+			query += " or author.author_name like ?) ";
+			
+			System.out.println(query);
+			
+			pstmt = conn.prepareStatement(query);
+			
+			//str = "%" + str + "%";
+			
+			pstmt.setString(1, "%" + str + "%");
+			pstmt.setString(2, "%" + str + "%");
+			pstmt.setString(3, "%" + str + "%");
+			
+			rs = pstmt.executeQuery();
+
+		    // 4.결과처리
+			while(rs.next()) {
+				int book_id = rs.getInt("book_id");
+				String title = rs.getString("title");
+				String pubs = rs.getString("pubs");
+				String pub_date = rs.getString("pub_date");
+				int author_id = rs.getInt("author_id");
+				String author_name = rs.getString("author_name");
+				String author_desc = rs.getString("author_desc");
+				
+				//BookVO bookVo = new BookVO(book_id, title, pubs, pub_date, author_id);
+				BookVO bookVo = new BookVO(book_id, title, pubs, pub_date, author_id, author_name, author_desc);
+				bookList.add(bookVo);
+			}
+
+		} catch (ClassNotFoundException e) {
+		    System.out.println("error: 드라이버 로딩 실패 - " + e);
+		} catch (SQLException e) {
+		    System.out.println("error:" + e);
+		} finally {
+		   
+		    // 5. 자원정리
+		    try {          
+		    	if (rs != null) {
+		            rs.close();
+		        }                
+		        if (pstmt != null) {
+		            pstmt.close();
+		        }
+		        if (conn != null) {
+		            conn.close();
+		        }
+		    } catch (SQLException e) {
+		        System.out.println("error:" + e);
+		    }
+
+		}
+
+		return bookList;
+	}
+	
 	//책 전체를 출력
 	public List<BookVO> getAllList() {
 		List<BookVO> bookList = new ArrayList<BookVO>();
@@ -104,8 +202,6 @@ public class BookDao {
 		}
 		return bookList;
 	}
-	
-	
 	
 	
 	//삭제(delete)
